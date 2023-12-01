@@ -133,7 +133,7 @@ int main() {
             case 4:
                 printf("Informe o numero do chassi: ");
                 scanf(" %[^\n]s", chassi);
-                printf("Digite o novo proprietário: ");
+                printf("Informe o novo proprietario: ");
                 scanf(" %[^\n]s", novoProprietario);
                 trocarProprietarioSemZero(lista, chassi, novoProprietario);
                 break;
