@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Veiculo {
+    char proprietario[50];
+    char combustivel[15];
+    char modelo[30];
+    char cor[20];
+    char chassi[20];
+    int ano;
+    char placa[8];
+    struct Veiculo* proximo;
+} Veiculo;
+
+Veiculo* inicializarLista() {
+    return NULL;
+}
+
+Veiculo* adicionarVeiculo(Veiculo* lista, char proprietario[], char combustivel[],
+                          char modelo[], char cor[], char chassi[], int ano, char placa[]) {
+    Veiculo* novoVeiculo = (Veiculo*)malloc(sizeof(Veiculo));
+    if (novoVeiculo == NULL) {
+        printf("Erro\n");
+        exit(EXIT_FAILURE);
+    }
+
+    strcpy(novoVeiculo->proprietario, proprietario);
+    strcpy(novoVeiculo->combustivel, combustivel);
+    strcpy(novoVeiculo->modelo, modelo);
+    strcpy(novoVeiculo->cor, cor);
+    strcpy(novoVeiculo->chassi, chassi);
+    novoVeiculo->ano = ano;
+    strcpy(novoVeiculo->placa, placa);
+    novoVeiculo->proximo = lista;
+
+    return novoVeiculo;
+}
+
+void listarProprietariosAnoDiesel(Veiculo* lista) {
+    printf("Proprietarios de carros de 2010+ e movidos a diesel:\n");
+    for (Veiculo* atual = lista; atual != NULL; atual = atual->proximo) {
+        if (atual->ano >= 2010 && strcmp(atual->combustivel, "diesel") == 0) {
+            printf("Proprietário: %s\n", atual->proprietario);
+        }
+    }
+}
+
+void listarPlacasJ(Veiculo* lista) {
+    printf("Placas que começam com J e terminam com 0, 2, 4 ou 7, junto de seus proprietarios:\n");
+    for (Veiculo* atual = lista; atual != NULL; atual = atual->proximo) {
+        if (atual->placa[0] == 'J' &&
+            (atual->placa[7] == '0' || atual->placa[7] == '2' || atual->placa[7] == '4' || atual->placa[7] == '7')) {
+            printf("Placa: %s, Proprietário: %s\n", atual->placa, atual->proprietario);
+        }
+    }
+}
+
+void listarModeloCorPlacasVogalSomaPar(Veiculo* lista) {
+    printf("Modelo e cor dos veiculos em que as placas possuem como segunda letra uma vogal e a soma dos numeros e um numero par:\n");
+    for (Veiculo* atual = lista; atual != NULL; atual = atual->proximo) {
+        if (strchr("AEIOUaeiou", atual->placa[1]) != NULL) {
+            int somaNumerosPlaca = 0;
+            for (int i = 2; i <= 6; i++) {
+                somaNumerosPlaca += atual->placa[i] - '0';
+            }
+            if (somaNumerosPlaca % 2 == 0) {
+                printf("Modelo: %s, Cor: %s\n", atual->modelo, atual->cor);
+            }
+        }
+    }
+}
+
+void trocarProprietarioSemZero(Veiculo* lista, char chassi[], char novoProprietario[]) {
+    for (Veiculo* atual = lista; atual != NULL; atual = atual->proximo) {
+        if (strcmp(atual->chassi, chassi) == 0) {
+            if (strchr(atual->placa, '0') == NULL) {
+                printf("A troca de proprietarios foi realizada\n");
+                strcpy(atual->proprietario, novoProprietario);
+                return;
+            } else {
+                printf("Nao e possivel fazer troca de proprietario para veiculos com zero na placa.\n");
+                return;
+            }
+        }
+    }
+
+    printf("Veiculo com chassi %s nao encontrado.\n", chassi);
+}
+
+
+void liberarLista(Veiculo* lista) {
+    Veiculo* atual = lista;
+    while (atual != NULL) {
+        Veiculo* proximo = atual->proximo;
+        free(atual);
+        atual = proximo;
+    }
+}
+
+
+int main() {
+    Veiculo* lista = inicializarLista();
+    int opcao;
+    char novoProprietario[50];
+    char chassi[20];
+
+    lista = adicionarVeiculo(lista, "Proprietario1", "gasolina", "Modelo1", "Cor1", "Chassi1", 2012, "ABC1234");
+    lista = adicionarVeiculo(lista, "Proprietario2", "diesel", "Modelo2", "Cor2", "Chassi2", 2010, "JXY9876");
+    lista = adicionarVeiculo(lista, "Proprietario3", "álcool", "Modelo3", "Cor3", "Chassi3", 2015, "JKL4321");
+    lista = adicionarVeiculo(lista, "Proprietario4", "diesel", "Modelo4", "Cor4", "Chassi4", 2011, "JAB5678");
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Listar proprietarios de veiculos do ano de 2010+ e a Diesel\n");
+        printf("2. Listar placas que começam com J e terminam com 0, 2, 4 ou 7\n");
+        printf("3. Listar modelo e cor de veiculos com placas que tem a segunda letra como vogal e soma de numeros par\n");
+        printf("4. Trocar proprietario (sem zero na placa)\n");
+        printf("5. Sair\n");
+        printf("Escolha a opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                listarProprietariosAnoDiesel(lista);
+                break;
+            case 2:
+                listarPlacasJ(lista);
+                break;
+            case 3:
+                listarModeloCorPlacasVogalSomaPar(lista);
+                break;
+            case 4:
+                printf("Informe o numero do chassi: ");
+                scanf(" %[^\n]s", chassi);
+                printf("Digite o novo proprietário: ");
+                scanf(" %[^\n]s", novoProprietario);
+                trocarProprietarioSemZero(lista, chassi, novoProprietario);
+                break;
+            case 5:
+                printf("Saindo\n");
+                break;
+            default:
+                printf("Opcao invalida\n");
+        }
+
+    } while (opcao != 5);
+
+    liberarLista(lista);
+
+    return 0;
+}
